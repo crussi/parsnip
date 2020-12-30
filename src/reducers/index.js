@@ -1,36 +1,38 @@
-import { uniqueId } from '../actions';
 
-const mockTasks = [
-    {
-      id: uniqueId(),
-      title: 'Learn Redux',
-      description: 'The store, actions and reducers ... oh my!',
-      status: 'In Progress'
-    },
-    {
-      id: uniqueId(),
-      title: 'Peace on Earth',
-      description: 'No big deal',
-      status: 'In Progress'
-    },
-  ];
-
-export default function tasks(state = { tasks: mockTasks }, action) {
+export default function tasks(state = { tasks: [] }, action) {
   const {type, payload } = action;
-  if (type === 'CREATE_TASK') {
-    return { tasks: state.tasks.concat(payload)};
-  }
-  if (type === 'EDIT_TASK') {
 
-    return {
-      tasks: state.tasks.map(task => {
-        if (task.id === payload.id) {
-          return Object.assign({}, task, payload.params);
-        }
-        return task;
-      })
+  switch(type) {
+    case 'EDIT_TASK': {
+      return {
+        ...state,
+        tasks: state.tasks.map(task => {
+          if (task.id === payload.id) {
+            return Object.assign({}, task, payload.params);
+          }
+          return task;
+        })
+      }
     }
-  }  
-  return state;
+    case 'FETCH_TASKS_SUCCEEDED': {
+      return { 
+        ...state,
+        tasks: action.payload.tasks
+      };
+    }
+    case 'CREATE_TASK_SUCCEEDED': {
+      return {
+        ...state,
+        tasks: state.tasks.concat(payload.task),
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+
+
 }
+
+
 
