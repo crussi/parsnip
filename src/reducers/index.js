@@ -3,16 +3,17 @@ export default function tasks(state = { tasks: [] }, action) {
   const {type, payload } = action;
 
   switch(type) {
-    case 'EDIT_TASK': {
+    case 'EDIT_TASK_SUCCEEDED': {
+      const { payload } = action;
       return {
-        ...state,
         tasks: state.tasks.map(task => {
-          if (task.id === payload.id) {
-            return Object.assign({}, task, payload.params);
+          if (task.id === payload.task.id) {
+            return payload.task;
           }
+
           return task;
-        })
-      }
+        }),
+      };
     }
     case 'FETCH_TASKS_SUCCEEDED': {
       return { 
@@ -26,7 +27,7 @@ export default function tasks(state = { tasks: [] }, action) {
         tasks: state.tasks.concat(payload.task),
       };
     }
-    default: {
+        default: {
       return state;
     }
   }

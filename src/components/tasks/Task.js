@@ -18,6 +18,8 @@ const Task = props => {
 
     function onStatusChange(e) {
         props.onStatusChange(props.task.id, e.target.value);
+        //props.task.status = e.target.value;
+        props.onStatusChange(props.task);
     }
 }
 

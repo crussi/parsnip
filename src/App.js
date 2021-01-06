@@ -13,6 +13,7 @@ import { createTask, editTask, fetchTasks  } from './actions';
       this.props.dispatch(createTask({ title, description }));
     }
     onStatusChange = (id, status) => {
+      //this.props.dispatch(editTask( id, { status }));
       this.props.dispatch(editTask( id, { status }));
     }
 
