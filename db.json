@@ -21,7 +21,7 @@
     {
       "title": "Hello world",
       "description": "hi there",
-      "status": "Unstarted",
+      "status": "In Progress",
       "id": 4
     },
     {
@@ -33,7 +33,7 @@
     {
       "title": "Hello",
       "description": "How are you?",
-      "status": "In Progress",
+      "status": "Completed",
       "id": 6
     },
     {

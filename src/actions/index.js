@@ -5,11 +5,25 @@ export function uniqueId() {
   return _id++;
 }
 
+function fetchTasksFailed(error) {
+  return {
+    type: 'FETCH_TASKS_FAILED',
+    payload: {
+      error,
+    },
+  };
+}
+
 export function fetchTasks() {
   return (dispatch) => {
+    dispatch(fetchTasksStarted());
     api.fetchTasks().then((resp) => {
-      dispatch(fetchTasksSucceeded(resp.data));
-    });
+      setTimeout(() => {
+        dispatch(fetchTasksSucceeded(resp.data));
+      },2000);
+      // throw new Error('error fetching tasks');
+    }).catch(err => { dispatch(fetchTasksFailed(err.message))});
+    ;
   };
 }
 
@@ -38,6 +52,15 @@ export function createTask({ title, description, status = 'Unstarted' }) {
 //     });
 //   };
 // }
+
+export function fetchTasksStarted() {
+  return {
+    type: "FETCH_TASKS_STARTED",
+    payload: {
+      
+    },
+  };
+}
 
 export function fetchTasksSucceeded(tasks) {
   return {
@@ -68,7 +91,7 @@ function editTaskSucceeded(task) {
 
 export function editTask(id, params = {}) {
   return (dispatch, getState) => {
-    const task = getTaskById(getState().tasks, id);
+    const task = getTaskById(getState().tasks.tasks, id);
     const updatedTask = Object.assign({}, task, params);
 
     api.editTask(id, updatedTask).then(resp => {

@@ -54,10 +54,10 @@ class TasksPage extends Component {
   }
 
   render() {
-
-
-
-
+    const { isLoading } = this.props;
+    if (isLoading) {
+      return (<div className="tasks-loading">loading ...</div>)
+    } else {
     return (
       <div>
         <div className="task-list-header">
@@ -89,7 +89,7 @@ class TasksPage extends Component {
         )}
         <div className="task-lists">{this.renderTaskLists()}</div>
       </div>
-    );
+    )};
   }
 }
 
