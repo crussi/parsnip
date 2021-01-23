@@ -1,13 +1,15 @@
-// import registerServiceWorker from './registerServiceWorker';
+import registerServiceWorker from './registerServiceWorker';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from 'redux-thunk';
+import createSagaMiddleware from 'redux-saga';
 import tasksReducer from './reducers';
 import App from './App';
+import rootSaga from './sagas';
 import './index.css';
 
 const rootReducer = (state = {}, action) => {
@@ -16,10 +18,14 @@ const rootReducer = (state = {}, action) => {
   };
 };
 
+const sagaMiddleware = createSagaMiddleware();
+
 const store = createStore(
   rootReducer,
-  composeWithDevTools(applyMiddleware(thunk))
+  composeWithDevTools(applyMiddleware(thunk, sagaMiddleware))
 );
+
+sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
   <Provider store={store}>
@@ -43,4 +49,4 @@ if (module.hot) {
   });
 }
 
-//registerServiceWorker();
+registerServiceWorker();

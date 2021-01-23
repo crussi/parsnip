@@ -1,82 +1,32 @@
-import * as api from "../api";
-
-let _id = 1;
-export function uniqueId() {
-  return _id++;
-}
-
-function fetchTasksFailed(error) {
-  return {
-    type: 'FETCH_TASKS_FAILED',
-    payload: {
-      error,
-    },
-  };
-}
+import * as api from '../api';
 
 export function fetchTasks() {
-  return (dispatch) => {
-    dispatch(fetchTasksStarted());
-    api.fetchTasks().then((resp) => {
-      setTimeout(() => {
-        dispatch(fetchTasksSucceeded(resp.data));
-      },2000);
-      // throw new Error('error fetching tasks');
-    }).catch(err => { dispatch(fetchTasksFailed(err.message))});
-    ;
-  };
-}
-
-export function createTask({ title, description, status = 'Unstarted' }) {
-  return (dispatch) => {
-    api.createTask({ title, description, status }).then((resp) => {
-      dispatch(createTaskSucceeded(resp.data));
-    });
-  };
-}
-
-// export function editTask(id, params = {}) {
-//   return {
-//     type: "EDIT_TASK",
-//     payload: {
-//       id,
-//       params,
-//     },
-//   };
-// }
-
-// export function editTask({ title, description, status }) {
-//   return (dispatch) => {
-//     api.editTask({ title, description, status }).then((resp) => {
-//       dispatch(editTaskSucceeded(resp.data));
-//     });
-//   };
-// }
-
-export function fetchTasksStarted() {
   return {
-    type: "FETCH_TASKS_STARTED",
-    payload: {
-      
-    },
+    type: 'FETCH_TASKS_STARTED',
   };
 }
 
-export function fetchTasksSucceeded(tasks) {
+export function createTaskRequested() {
   return {
-    type: "FETCH_TASKS_SUCCEEDED",
-    payload: {
-      tasks,
-    },
+    type: 'CREATE_TASK_REQUESTED',
   };
 }
 
 export function createTaskSucceeded(task) {
   return {
-    type: "CREATE_TASK_SUCCEEDED",
+    type: 'CREATE_TASK_SUCCEEDED',
     payload: {
       task,
     },
+  };
+}
+
+export function createTask({ title, description, status = 'Unstarted' }) {
+  return dispatch => {
+    dispatch(createTaskRequested());
+    api.createTask({ title, description, status }).then(resp => {
+      dispatch(createTaskSucceeded(resp.data));
+    });
   };
 }
 
@@ -89,13 +39,33 @@ function editTaskSucceeded(task) {
   };
 }
 
+function progressTimerStart(taskId) {
+  return { type: 'TIMER_STARTED', payload: { taskId } };
+}
+
+function progressTimerStop(taskId) {
+  return { type: 'TIMER_STOPPED', payload: { taskId } };
+}
+
 export function editTask(id, params = {}) {
   return (dispatch, getState) => {
     const task = getTaskById(getState().tasks.tasks, id);
-    const updatedTask = Object.assign({}, task, params);
-
+    const updatedTask = {
+      ...task,
+      ...params,
+    };
     api.editTask(id, updatedTask).then(resp => {
       dispatch(editTaskSucceeded(resp.data));
+
+      // if task moves into "In Progress", start timer
+      if (resp.data.status === 'In Progress') {
+        return dispatch(progressTimerStart(resp.data.id));
+      }
+
+      // if tasks move out of "In Progress", stop timer
+      if (task.status === 'In Progress') {
+        return dispatch(progressTimerStop(resp.data.id));
+      }
     });
   };
 }
@@ -104,4 +74,6 @@ function getTaskById(tasks, id) {
   return tasks.find(task => task.id === id);
 }
 
-
+export function filterTasks(searchTerm) {
+  return { type: 'FILTER_TASKS', payload: { searchTerm } };
+}
